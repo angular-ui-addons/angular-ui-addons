@@ -1,0 +1,5 @@
+<ul class="list-inline plates">
+  <li ng-repeat="item in list">{{ item.name }}
+    <button type="button" class="close" aria-hidden="true" ng-click="removeItem(item.id)">&times;</button>
+  </li>
+</ul>

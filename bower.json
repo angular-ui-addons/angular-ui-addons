@@ -1,0 +1,11 @@
+{
+  "name": "socialmarkt2-ng",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular": "1.2.6",
+    "bootstrap": "~3.0.3",
+    "underscore": "*"
+  },
+  "devDependencies": {
+  }
+}
