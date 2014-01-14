@@ -34,8 +34,10 @@ angular.module('angular-ui-addons.inclist', []) //['underscore'])
         controller: ["$scope", function ($scope) {
 
           $scope.addPropertyToList = function () {
-            $scope.list.push({id: Date.now(), name: $scope.propSelection});
-            $scope.propSelection = "";
+            if ($scope.propSelection != "" && $scope.propSelection != undefined) {
+              $scope.list.push({id: Date.now(), name: $scope.propSelection});
+              $scope.propSelection = "";
+            }
           };
 
         }],
