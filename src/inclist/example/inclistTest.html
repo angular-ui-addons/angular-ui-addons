@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html ng-app="inclistTest">
+
+<head>
+  <title>AngularUI Addons - Test inclist widget</title>
+
+  <!-- Get external libraries and styles from bower. Check you've done "bower install" before! -->
+  <link href="../../../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+  <script src="../../../bower_components/angular/angular.min.js"></script>
+  <!--<script src="../../../bower_components/underscore/underscore-min.js"></script>-->
+
+  <!-- Include widget library -->
+  <script src="../inclist.js"></script>
+
+  <!-- Include local libraries and styles for tests -->
+  <link href="inclistTest.css" rel="stylesheet" type="text/css" />
+  <script src="inclistTest.js"></script>
+
+</head>
+
+<body>
+
+<div ng-controller="InclistTestCtrl">
+
+  <div class="form-group">
+    <div class="col-sm-4" ng-class="{'has-error': wrongPropSelection || propSelectionAlreadyExists}">
+
+      <inclist-input inclist-input-list="list" inclist-input-prop-selection="propSelection"></inclist-input>
+
+      <inclist-out inclist-out-list="list"></inclist-out>
+    </div>
+    <div class="col-sm-6" ng-show="wrongPropSelection">
+      <span class="help-block"><p class="text-danger">Please, check your input! The property does not exist!</p></span>
+    </div>
+    <div class="col-sm-6" ng-show="propSelectionAlreadyExists">
+      <span class="help-block"><p class="text-danger">Please, check your input! The property already added!</p></span>
+    </div>
+  </div>
+
+
+</div>
+
+</body>
+</html>

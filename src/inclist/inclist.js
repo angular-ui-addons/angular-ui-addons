@@ -3,6 +3,9 @@
 //  return window._;
 //});
 
+angular.module('angular-ui-addons', ['angular-ui-addons.templates', 'angular-ui-addons.inclist']);
+angular.module('angular-ui-addons.templates', ['templates/inclist/inclist-input.html', 'templates/inclist/inclist-out-list.html']);
+
 angular.module('angular-ui-addons.inclist', []) //['underscore'])
 
     .directive("inclist", ['$compile', '$parse', '$q', '$timeout', '$document',
@@ -78,5 +81,28 @@ angular.module('angular-ui-addons.inclist', []) //['underscore'])
       }
     });
 
+angular.module("templates/inclist/inclist-input.html", []).run(["$templateCache", function ($templateCache) {
+  $templateCache.put("templates/inclist/inclist-input.html",
+      "<form ng-submit=\"addPropertyToList()\">" +
+          "  <div class=\"input-group\">" +
+          "    <input id=\"inputPropsList\" type=\"text\" ng-model=\"propSelection\" " +
+          "    placeholder=\"Type here and press enter to add property\" " +
+          "    autocomplete=\"off\" class=\"form-control\">" +
+          "      <span class=\"input-group-btn\">" +
+          "        <button class=\"btn btn-default\" type=\"submit\">+</button>" +
+          "      </span>" +
+          "    </div>" +
+          "  </form>"
+  );
+}]);
 
+angular.module("templates/inclist/inclist-out-list.html", []).run(["$templateCache", function ($templateCache) {
+  $templateCache.put("templates/inclist/inclist-out-list.html",
+      "<ul class=\"list-inline plates\">" +
+          "  <li ng-repeat=\"item in list\">{{ item.name }} " +
+          "    <button type=\"button\" class=\"close\" aria-hidden=\"true\" ng-click=\"removeItem(item.id)\">&times;</button>" +
+          "  </li>" +
+          "</ul>"
+  );
+}]);
 
