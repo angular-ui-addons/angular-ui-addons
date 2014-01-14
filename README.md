@@ -1,4 +1,4 @@
 angular-ui-addons
 =================
 
-Add-ons for AngularJS UI libraries located at http://angular-ui.github.io
+Native add-ons for AngularJS libraries built with respect to http://angular-ui.github.io
