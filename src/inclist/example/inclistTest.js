@@ -1,4 +1,4 @@
-angular.module('inclistTest', ['angular-ui-addons'])
+angular.module('inclistTest', ['angular-ui-addons.inclist'])
 
     .controller("InclistTestCtrl", ["$scope", function ($scope) {
 

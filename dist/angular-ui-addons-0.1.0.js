@@ -1,3 +1,11 @@
+/*
+ * angular-ui-addons
+ * http://angular-ui-addons.github.io
+
+ * Version: 0.1.0 - 2014-01-15
+ * License: MIT
+ */
+angular.module("angular-ui-addons", ["angular-ui-addons.inclist"]);
 angular.module('angular-ui-addons.inclist', [])
 
     .directive('inclistInput', function () {
