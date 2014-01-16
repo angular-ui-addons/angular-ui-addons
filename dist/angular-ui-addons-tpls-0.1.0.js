@@ -43,16 +43,27 @@ angular.module('angular-ui-addons.inclist', [])
         require: "^inclist",
         restrict: "AE",
         scope: {},
+        replace: true,
         templateUrl: 'template/inclist/inclist-input.html',
 
-        link: function (scope, element, attrs, inclistCtrl) {
+        compile: function (tElement, tAttrs) {
 
-          scope.addItemFromSelection = function () {
-            inclistCtrl.addItem(scope.selection);
-            scope.selection = "";
+          tElement.find('input').attr('ng-model', 'selection');
+
+          return function (scope, element, attrs, inclistCtrl) {
+
+              scope.addItemFromSelection = function () {
+                inclistCtrl.addItem(scope.selection);
+                scope.selection = "";
+                scope.$apply();
+              };
+
+              element.on('submit', scope.addItemFromSelection);
+
           };
 
         }
+
       };
     })
 
@@ -79,9 +90,13 @@ angular.module('angular-ui-addons.inclist', [])
 
 angular.module("template/inclist/inclist-input.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("template/inclist/inclist-input.html",
-    "<form ng-submit=\"addItemFromSelection()\">\n" +
+    "<form>\n" +
+    "  <!--\n" +
+    "    If using custom template you have to use <form> and <input> elements for the same as in current template\n" +
+    "    as of the directive 'inclist-input' will inject appropriate behavior based on these elements.\n" +
+    "  -->\n" +
     "  <div class=\"input-group\">\n" +
-    "    <input type=\"text\" autocomplete=\"off\" class=\"form-control\" ng-model=\"selection\"\n" +
+    "    <input type=\"text\" autocomplete=\"off\" class=\"form-control\"\n" +
     "           placeholder=\"Type here and press enter to add property\">\n" +
     "\n" +
     "    <span class=\"input-group-btn\"><button class=\"btn btn-default\" type=\"submit\">+</button></span>\n" +

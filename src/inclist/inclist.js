@@ -51,7 +51,7 @@ angular.module('angular-ui-addons.inclist', [])
 
               element.on('submit', scope.addItemFromSelection);
 
-          }
+          };
 
         }
 

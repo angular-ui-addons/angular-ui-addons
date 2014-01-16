@@ -42,16 +42,27 @@ angular.module('angular-ui-addons.inclist', [])
         require: "^inclist",
         restrict: "AE",
         scope: {},
+        replace: true,
         templateUrl: 'template/inclist/inclist-input.html',
 
-        link: function (scope, element, attrs, inclistCtrl) {
+        compile: function (tElement, tAttrs) {
 
-          scope.addItemFromSelection = function () {
-            inclistCtrl.addItem(scope.selection);
-            scope.selection = "";
+          tElement.find('input').attr('ng-model', 'selection');
+
+          return function (scope, element, attrs, inclistCtrl) {
+
+              scope.addItemFromSelection = function () {
+                inclistCtrl.addItem(scope.selection);
+                scope.selection = "";
+                scope.$apply();
+              };
+
+              element.on('submit', scope.addItemFromSelection);
+
           };
 
         }
+
       };
     })
 
