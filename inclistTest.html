@@ -13,7 +13,7 @@
   <script src="src/inclist/inclist.js"></script>
 
   <!-- Include local libraries and styles for tests -->
-  <link href="src/inclist/example/inclistTest.css" rel="stylesheet" type="text/css" />
+  <link href="src/inclist/example/inclistTest.css" rel="stylesheet" type="text/css"/>
   <script src="src/inclist/example/inclistTest.js"></script>
 
 </head>
@@ -22,21 +22,37 @@
 
 <div ng-controller="InclistTestCtrl">
 
-  <div class="form-group">
-    <div class="col-sm-4" ng-class="{'has-error': wrongPropSelection || propSelectionAlreadyExists}">
 
-      <inclist-input inclist-input-list="list" inclist-input-prop-selection="propSelection"></inclist-input>
+  <inclist data-items="list1">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="form-group">
 
-      <inclist-out inclist-out-list="list"></inclist-out>
+          <div inclist-input></div>
+
+        </div>
+      </div>
     </div>
-    <div class="col-sm-6" ng-show="wrongPropSelection">
-      <span class="help-block"><p class="text-danger">Please, check your input! The property does not exist!</p></span>
+    <div class="row">
+      <div class="col-sm-10">
+        <div class="form-group">
+
+          <div inclist-out></div>
+
+        </div>
+      </div>
     </div>
-    <div class="col-sm-6" ng-show="propSelectionAlreadyExists">
-      <span class="help-block"><p class="text-danger">Please, check your input! The property already added!</p></span>
+  </inclist>
+
+  <div class="row">
+    <div class="form-group" inclist data-items="list2">
+      <div class="col-sm-5">
+        <div inclist-input></div>
+
+        <div inclist-out></div>
+      </div>
     </div>
   </div>
-
 
 </div>
 

@@ -12,7 +12,7 @@ var fs = require('fs');
 var util = require('util');
 
 
-var MAX_LENGTH = 70;
+var MAX_LENGTH = 150;
 var PATTERN = /^(?:fixup!\s*)?(\w*)(\((\w+)\))?\: (.*)$/;
 var IGNORED = /^WIP\:/;
 var TYPES = {
@@ -24,7 +24,8 @@ var TYPES = {
   refactor: true,
   revert: true,
   style: true,
-  test: true
+  test: true,
+  improve: true
 };
 
 

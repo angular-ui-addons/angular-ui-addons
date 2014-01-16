@@ -1,11 +1,8 @@
-<form ng-submit="addPropertyToList()">
+<form ng-submit="addItemFromSelection()">
   <div class="input-group">
-    <input id="inputPropsList" type="text" ng-model="propSelection"
-           placeholder="Type here and press enter to add property"
-           autocomplete="off" class="form-control">
+    <input type="text" autocomplete="off" class="form-control" ng-model="selection"
+           placeholder="Type here and press enter to add property">
 
-    <span class="input-group-btn">
-      <button class="btn btn-default" type="submit">+</button>
-    </span>
+    <span class="input-group-btn"><button class="btn btn-default" type="submit">+</button></span>
   </div>
 </form>
