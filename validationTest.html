@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html ng-app="validationTest">
+
+<head>
+  <title>AngularUI Addons - Test inclist widget</title>
+
+  <!-- Get external libraries and styles from bower. Check you've done "bower install" before! -->
+  <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+  <script src="bower_components/angular/angular.min.js"></script>
+  <!--<script src="bower_components/underscore/underscore-min.js"></script>-->
+
+  <!-- Include widget library -->
+  <script src="src/validation/validation.js"></script>
+
+  <!-- Include local libraries and styles for tests -->
+  <!--<link href="src/validation/example/validationTest.css" rel="stylesheet" type="text/css"/>-->
+  <script src="src/validation/example/validationTest.js"></script>
+
+</head>
+
+<body>
+
+<div ng-controller="ValidationTestCtrl" class="container">
+
+  <p></p>
+
+  <form name="loginForm">
+    <div class="row">
+      <div class="col-md-6" ng-class="{'has-error': loginForm.username.$dirty && loginForm.username.$invalid}">
+        <input name="username" type="text" autocomplete="off" class="form-control" placeholder="Type your name here"
+               ng-model="username" ng-minlength=6
+               ng-class="{'alert-danger': loginForm.username.$dirty && loginForm.username.$invalid}">
+      </div>
+      <div class="col-sm-6" ng-show="loginForm.username.$dirty && loginForm.username.$invalid">
+        <span class="help-block"><p class="text-danger">Name is too short!</p></span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6" ng-class="{'has-error': loginForm.password.$dirty && loginForm.password.$invalid}">
+        <input name="password" type="password" autocomplete="off" class="form-control" placeholder="Type a password"
+               ng-model="password" strong-password
+               ng-class="{'alert-danger': loginForm.password.$dirty && loginForm.password.$invalid}">
+      </div>
+      <div class="col-sm-6" ng-show="loginForm.password.$dirty && loginForm.password.$invalid">
+        <span class="help-block"><p class="text-danger">Password is too weak! Type again</p></span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6" ng-class="{'has-error': loginForm.password.$dirty && passwordRepeat != password}">
+        <input name="passwordRepeat" type="password" autocomplete="off" class="form-control" placeholder="Repeat a password"
+               ng-model="passwordRepeat"
+               ng-class="{'alert-danger': loginForm.password.$dirty && passwordRepeat != password}">
+      </div>
+      <div class="col-sm-6" ng-show="loginForm.password.$dirty && passwordRepeat != password">
+        <span class="help-block"><p class="text-danger">Passwords does not match!</p></span>
+      </div>
+    </div>
+    <p>{{ loginForm.password.$error.strongPass}}</p>
+
+    <div class="row">
+      <button ng-class="{disabled: loginForm.$invalid || passwordRepeat != password || loginForm.$dirty}" class="btn btn-primary">Go</button>
+    </div>
+  </form>
+
+
+</div>
+
+</body>
+</html>
