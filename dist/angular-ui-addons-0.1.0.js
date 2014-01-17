@@ -2,10 +2,10 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.0 - 2014-01-16
+ * Version: 0.1.0 - 2014-01-17
  * License: MIT
  */
-angular.module("angular-ui-addons", ["angular-ui-addons.inclist"]);
+angular.module("angular-ui-addons", ["angular-ui-addons.inclist","angular-ui-addons.validation"]);
 angular.module('angular-ui-addons.inclist', [])
 
     .directive('inclist', function () {
@@ -51,13 +51,16 @@ angular.module('angular-ui-addons.inclist', [])
 
           return function (scope, element, attrs, inclistCtrl) {
 
-              scope.addItemFromSelection = function () {
-                inclistCtrl.addItem(scope.selection);
-                scope.selection = "";
-                scope.$apply();
-              };
+            // Override placeholder if new one is defined
+            element.find('input').attr('placeholder', attrs.placeholder);
 
-              element.on('submit', scope.addItemFromSelection);
+            scope.addItemFromSelection = function () {
+              inclistCtrl.addItem(scope.selection);
+              scope.selection = "";
+              scope.$apply();
+            };
+
+            element.on('submit', scope.addItemFromSelection);
 
           };
 
