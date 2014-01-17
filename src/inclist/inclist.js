@@ -43,13 +43,16 @@ angular.module('angular-ui-addons.inclist', [])
 
           return function (scope, element, attrs, inclistCtrl) {
 
-              scope.addItemFromSelection = function () {
-                inclistCtrl.addItem(scope.selection);
-                scope.selection = "";
-                scope.$apply();
-              };
+            // Override placeholder if new one is defined
+            element.find('input').attr('placeholder', attrs.placeholder);
 
-              element.on('submit', scope.addItemFromSelection);
+            scope.addItemFromSelection = function () {
+              inclistCtrl.addItem(scope.selection);
+              scope.selection = "";
+              scope.$apply();
+            };
+
+            element.on('submit', scope.addItemFromSelection);
 
           };
 
