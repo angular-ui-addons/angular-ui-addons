@@ -10,11 +10,22 @@ angular.module('inclistTest', ['angular-ui-addons.inclist'])
         {id: "4", name: "Zebra"}
       ];
 
+      $scope.typeaheadSrc = [
+        {id: "1", name: "Elephant"},
+        {id: "2", name: "Monkey"},
+        {id: "3", name: "Tiger"},
+        {id: "4", name: "Zebra"}
+      ];
+
+      $scope.typeaheadSrcRaw = [ "Elephant", "Monkey", "Tiger", "Zebra" ];
+
       $scope.list2 = [
         {id: "5", name: "Hamburger"},
         {id: "6", name: "Pizza"},
         {id: "7", name: "Cola"},
         {id: "8", name: "Juice"}
       ];
+
+      $scope.list2raw = [];
 
     }]);
