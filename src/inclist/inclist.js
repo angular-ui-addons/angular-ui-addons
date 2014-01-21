@@ -14,9 +14,9 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
             var rawItems = [];
             angular.forEach($scope.items, function(item) { rawItems.push(item.name); });
 
-            if (angular.isDefined(selection) && selection != ""
-                && (!$scope.isUnique || !_isItemExistIn(selection, rawItems))
-                && (!$scope.isTypeaheadRestrict || _isItemExistIn(selection, this.getTypeaheadItems()))) {
+            if (angular.isDefined(selection) && selection !== "" &&
+                (!$scope.isUnique || !_isItemExistIn(selection, rawItems)) &&
+                (!$scope.isTypeaheadRestrict || _isItemExistIn(selection, this.getTypeaheadItems()))) {
               $scope.items.push({id: "item-" + Date.now(), name: selection});
               return true;
             }
@@ -37,10 +37,11 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
             var result = [];
             angular.forEach($scope.typeaheadItems,
                 function (item) {
-                  if (angular.isObject(item) && angular.isUndefined(item.name))
-                    throw Error("Typeahead list should contain plain strings or objects with " +
+                  if (angular.isObject(item) && angular.isUndefined(item.name)) {
+                    throw new Error("Typeahead list should contain plain strings or objects with " +
                         "'name' field to extract plain string from");
-                  result.push(angular.isObject(item) ? item.name : item)
+                  }
+                  result.push(angular.isObject(item) ? item.name : item);
                 }
             );
             return result;
