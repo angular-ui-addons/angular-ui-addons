@@ -4,20 +4,23 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
       return {
         restrict: "AE",
         scope: {
-          items: '=',
+          items: '=inclistItems',
           typeaheadItems: '='
         },
 
         controller: function ($scope) {
 
           this.addItem = function (selection) {
-            var rawItems = [];
-            angular.forEach($scope.items, function(item) { rawItems.push(item.name); });
-
             if (angular.isDefined(selection) && selection !== "" &&
-                (!$scope.isUnique || !_isItemExistIn(selection, rawItems)) &&
-                (!$scope.isTypeaheadRestrict || _isItemExistIn(selection, this.getTypeaheadItems()))) {
-              $scope.items.push({id: "item-" + Date.now(), name: selection});
+                (!$scope.isUnique || !_isItemExist(selection, $scope.items, $scope.itemsField)) &&
+                (!$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.itemsField))) {
+              var itemToAdd = _find(selection, $scope.typeaheadItems, $scope.itemsField);
+              if (itemToAdd === undefined) {
+                itemToAdd = {};
+                itemToAdd['id'] = "id" + Date.now();
+                itemToAdd[$scope.itemsField] = selection;
+              }
+              $scope.items.push(itemToAdd);
               return true;
             }
             return false;
@@ -27,30 +30,49 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
             return $scope.items;
           };
 
-          this.removeItem = function (itemId) {
+          this.getFlatItem = function (item) {
+            if (angular.isObject(item) && angular.isUndefined(item[$scope.itemsField])) {
+              var error = "Inclist list item should be an object with " +
+                  "'" + $scope.itemsField + "' field to extract string value from";
+              console.error(error);
+              throw new Error(error);
+
+            }
+            return item[$scope.itemsField];
+          };
+
+          this.removeItem = function (value) {
             var result = [];
-            angular.forEach($scope.items, function (item) { if (item.id != itemId) { result.push(item); } });
+            angular.forEach($scope.items, function (item) { if (item[$scope.itemsField] != value) { result.push(item); } });
             $scope.items = result;
           };
 
-          this.getTypeaheadItems = function () {
+          this.getTypeaheadFlatItems = function () {
             var result = [];
             angular.forEach($scope.typeaheadItems,
                 function (item) {
-                  if (angular.isObject(item) && angular.isUndefined(item.name)) {
-                    throw new Error("Typeahead list should contain plain strings or objects with " +
-                        "'name' field to extract plain string from");
+                  if (angular.isObject(item) && angular.isUndefined(item[$scope.itemsField])) {
+                    throw new Error("Typeahead list should contain objects with " +
+                        "'" + $scope.itemsField + "' field to extract string value from");
                   }
-                  result.push(angular.isObject(item) ? item.name : item);
+                  result.push(item[$scope.itemsField]);
                 }
             );
             return result;
           };
 
-          var _isItemExistIn = function (value, list) {
+          var _isItemExist = function (value, list, fieldName) {
             var result = false;
             angular.forEach(list, function (item) {
-              if (item == value) { result = true; }
+              if (item[fieldName] == value) { result = true; }
+            });
+            return result;
+          };
+
+          var _find = function (value, list, fieldName) {
+            var result;
+            angular.forEach(list, function (item) {
+              if (item[fieldName] == value) { result = item; }
             });
             return result;
           };
@@ -59,8 +81,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
         link: function (scope, element, attrs) {
           scope.isUnique = angular.isDefined(attrs.inclistUnique);
-          scope.isTypeaheadRestrict = angular.isDefined(attrs.inclistTypeaheadRestrict);
-          console.log("Restrict = " + scope.isTypeaheadRestrict);
+          scope.isTypeaheadRestrict = angular.isDefined(attrs.typeaheadRestrict);
+          scope.itemsField = attrs.inclistField;
         }
       };
     })
@@ -92,7 +114,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
             };
 
             scope.getTypeaheadItems = function() {
-              var typeaheadItems = inclistCtrl.getTypeaheadItems();
+              var typeaheadItems = inclistCtrl.getTypeaheadFlatItems();
               return angular.isDefined(typeaheadItems) ? typeaheadItems : [];
             };
 
@@ -116,8 +138,12 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
           scope.items = inclistCtrl.getItems();
 
+          scope.getFlatItem = function(item) {
+            return inclistCtrl.getFlatItem(item);
+          };
+
           scope.removeItem = function (item) {
-            inclistCtrl.removeItem(item);
+            inclistCtrl.removeItem(scope.getFlatItem(item));
             scope.items = inclistCtrl.getItems();
           };
 
