@@ -28,17 +28,32 @@
       <div class="col-sm-5">
         <inclist data-inclist-items="list1"
                  data-inclist-field="name"
-                 data-inclist-unique
                  data-typeahead-items="typeaheadSrc"
+                 data-typeahead-items-search-fields="name, email"
+                 data-inclist-unique
                  data-typeahead-restrict
+                 data-typeahead-restrict-valid-excl
             >
-          <div inclist-input data-placeholder="Overridden placeholder"></div>
+          <div inclist-input
+               data-placeholder="Overridden placeholder"
+               data-inclist-form="inclistForm"
+               data-input-type="email"
+              >
+
+              </div>
 
           <div inclist-out></div>
         </inclist>
       </div>
     </div>
   </div>
+
+  <button ng-click="printForm()"></button>
+
+  <div>error = {{inclistForm.inclistFormItemInput.$error.email}}</div>
+  <div>list1 = {{list1}}</div>
+
+
 
 </div>
 

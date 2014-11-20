@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.0 - 2014-01-30
+ * Version: 0.1.0 - 2014-11-20
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -18,10 +18,14 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
         controller: function ($scope) {
 
-          this.addItem = function (selection) {
-            if (angular.isDefined(selection) && selection !== "" &&
+          this.addItem = function (selection, validForRestrictExcl) {
+            if (
+                angular.isDefined(selection) &&
+                selection !== "" &&
                 (!$scope.isUnique || !_isItemExist(selection, $scope.items, $scope.itemsField)) &&
-                (!$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.itemsField))) {
+                (!$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadItemsSearchFields) || $scope.isTypeaheadRestrictValidExcl) &&
+                (!$scope.isTypeaheadRestrictValidExcl || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadItemsSearchFields) || validForRestrictExcl)
+            ) {
               var itemToAdd = _find(selection, $scope.typeaheadItems, $scope.itemsField);
               if (itemToAdd === undefined) {
                 itemToAdd = {};
@@ -69,12 +73,33 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
             return result;
           };
 
-          var _isItemExist = function (value, list, fieldName) {
-            var result = false;
+          //var _isItemExist = function (value, list, fieldName) {
+          //  var result = false;
+          //  angular.forEach(list, function (item) {
+          //    if (item[fieldName] == value) { result = true; }
+          //  });
+          //  return result;
+          //};
+
+          var _isItemExist = function (value, list, fieldNames) {
+            var exists = false;
             angular.forEach(list, function (item) {
-              if (item[fieldName] == value) { result = true; }
+              if (!exists) {
+                console.log("searching item ", item, " in ", list, " by ", fieldNames, " for ", value);
+                //console.log("searching in ", item, " by ", fieldNames);
+                if (fieldNames instanceof Array) {
+                  angular.forEach(fieldNames, function (fieldName) {
+                    if (item[fieldName] == value) { exists = true; }
+                    console.log("s:::: ", fieldName, item[fieldName], value, exists);
+                  });
+                }
+                else {
+                  if (item[fieldNames] == value) { exists = true; }
+                  console.log("s!!!!! ", fieldNames, item[fieldNames], value, exists);
+                }
+              }
             });
-            return result;
+            return exists;
           };
 
           var _find = function (value, list, fieldName) {
@@ -90,7 +115,18 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
         link: function (scope, element, attrs) {
           scope.isUnique = angular.isDefined(attrs.inclistUnique);
           scope.isTypeaheadRestrict = angular.isDefined(attrs.typeaheadRestrict);
+          scope.isTypeaheadRestrictValidExcl = angular.isDefined(attrs.typeaheadRestrictValidExcl);
+
+          if (angular.isDefined(attrs.typeaheadItemsSearchFields)) {
+            scope.typeaheadItemsSearchFields = attrs.typeaheadItemsSearchFields.replace(/\s+/, "").split(",");
+          }
+          else {
+            scope.typeaheadItemsSearchFields = "name";
+          }
+
           scope.itemsField = attrs.inclistField;
+
+          console.log("scope.typeaheadItemsSearchFields", scope.typeaheadItemsSearchFields);
         }
       };
     })
@@ -99,7 +135,9 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
       return {
         require: "^inclist",
         restrict: "AE",
-        scope: {},
+        scope: {
+          inclistForm: "="
+        },
         replace: true,
         templateUrl: 'template/inclist/inclist-input.html',
 
@@ -109,13 +147,26 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
           tElement.find('input').attr('typeahead', 'item for item in getTypeaheadItems() | filter:$viewValue');
 
+          if (tAttrs.inputType) {
+            tElement.find('input').attr('type', tAttrs.inputType);
+            console.log("inclistForm inputType", tAttrs.inputType);
+          }
+
           return function (scope, element, attrs, inclistCtrl) {
+
+            //console.log("inclistForm", scope.inclistForm);
 
             // Override placeholder if new one is defined
             element.find('input').attr('placeholder', attrs.placeholder);
 
+            //if (attrs.inputType) {
+            //  element.find('input').attr('type', attrs.inputType);
+            //  console.log("inclistForm inputType", attrs.inputType);
+            //}
+
             scope.addItemFromSelection = function () {
-              if (inclistCtrl.addItem(scope.selection)) {
+
+              if (inclistCtrl.addItem(scope.selection, !scope.inclistForm.inclistFormItemInput.$error.email)) {
                 scope.selection = "";
                 scope.$apply();
               }
