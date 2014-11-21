@@ -7,6 +7,7 @@
   <!-- Get external libraries and styles from bower. Check you've done "bower install" before! -->
   <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
   <script src="bower_components/angular/angular.min.js"></script>
+  <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
   <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
   <!--<script src="bower_components/underscore/underscore-min.js"></script>-->
 
@@ -21,6 +22,18 @@
 
 <body>
 
+<script type="text/ng-template" id="customTemplate.html">
+  <span>
+    <a>
+      <!--<img ng-src="http://upload.wikimedia.org/wikipedia/commons/thumb/{{match.model.id}}" width="16">-->
+      <span ng-bind-html="(match.model.name + ' [' + match.model.email + ']') | typeaheadHighlight:query"></span>
+    </a>
+    <div>
+      {{match|json}}
+    </div>
+  </span>
+</script>
+
 <div ng-controller="InclistTestCtrl">
 
   <div class="row">
@@ -28,9 +41,9 @@
       <div class="col-sm-5">
         <inclist data-inclist-items="list1"
                  data-inclist-field="name"
+                 data-inclist-unique
                  data-typeahead-items="typeaheadSrc"
                  data-typeahead-items-search-fields="name, email"
-                 data-inclist-unique
                  data-typeahead-restrict
                  data-typeahead-restrict-valid-excl
             >
@@ -38,6 +51,8 @@
                data-placeholder="Overridden placeholder"
                data-inclist-form="inclistForm"
                data-input-type="email"
+               data-typeahead-label-field="name"
+               data-typeahead-template="customTemplate.html"
               >
 
               </div>

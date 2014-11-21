@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.0 - 2014-11-20
+ * Version: 0.1.0 - 2014-11-21
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -71,6 +71,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
                 }
             );
             return result;
+          };
+
+          this.getTypeaheadItems = function () {
+            return $scope.typeaheadItems;
           };
 
           //var _isItemExist = function (value, list, fieldName) {
@@ -145,11 +149,20 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
           tElement.find('input').attr('ng-model', 'selection');
 
-          tElement.find('input').attr('typeahead', 'item for item in getTypeaheadItems() | filter:$viewValue');
+          var labelField = tAttrs.typeaheadLabelField || "name";
+
+          tElement.find('input')
+              .attr('typeahead', 'label as item.' + labelField + ' for item in getTypeaheadItems() | filter:$viewValue');
+          //tElement.find('input').attr('typeahead', 'item for item in getTypeaheadItems() | filter:$viewValue');
+
+          console.log("tAttrs.typeaheadTemplate", tAttrs.typeaheadTemplate);
+
+          if (tAttrs.typeaheadTemplate) {
+            tElement.find('input').attr('typeahead-template-url', tAttrs.typeaheadTemplate);
+          }
 
           if (tAttrs.inputType) {
             tElement.find('input').attr('type', tAttrs.inputType);
-            console.log("inclistForm inputType", tAttrs.inputType);
           }
 
           return function (scope, element, attrs, inclistCtrl) {
@@ -173,10 +186,15 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
             };
 
             scope.getTypeaheadItems = function() {
-              var typeaheadItems = inclistCtrl.getTypeaheadFlatItems();
+              var typeaheadItems = inclistCtrl.getTypeaheadItems();
               return angular.isDefined(typeaheadItems) ? typeaheadItems : [];
             };
 
+            //scope.getTypeaheadItems = function() {
+            //  var typeaheadItems = inclistCtrl.getTypeaheadFlatItems();
+            //  return angular.isDefined(typeaheadItems) ? typeaheadItems : [];
+            //};
+            //
             element.on('submit', scope.addItemFromSelection);
 
           };
