@@ -6,9 +6,9 @@
 
   <!-- Get external libraries and styles from bower. Check you've done "bower install" before! -->
   <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-  <script src="bower_components/angular/angular.min.js"></script>
+  <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
-  <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+  <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
   <!--<script src="bower_components/underscore/underscore-min.js"></script>-->
 
   <!-- Include widget library -->
@@ -22,16 +22,13 @@
 
 <body>
 
-<script type="text/ng-template" id="customTemplate.html">
-  <span>
-    <a>
-      <!--<img ng-src="http://upload.wikimedia.org/wikipedia/commons/thumb/{{match.model.id}}" width="16">-->
+<!--
+      <img ng-src="http://upload.wikimedia.org/wikipedia/commons/thumb/{{match.model.id}}" width="16">
       <span ng-bind-html="(match.model.name + ' [' + match.model.email + ']') | typeaheadHighlight:query"></span>
-    </a>
-    <div>
-      {{match|json}}
-    </div>
-  </span>
+-->
+
+<script type="text/ng-template" id="customTemplate.html">
+  <a tabindex="-1" ng-bind-html="(match.model.name + ' [' + match.model.email + ']') | typeaheadHighlight:query"></a>
 </script>
 
 <div ng-controller="InclistTestCtrl">
@@ -42,17 +39,27 @@
         <inclist data-inclist-items="list1"
                  data-inclist-field="name"
                  data-inclist-unique
-                 data-typeahead-items="typeaheadSrc"
-                 data-typeahead-items-search-fields="name, email"
-                 data-typeahead-restrict
-                 data-typeahead-restrict-valid-excl
             >
+          <!--
+            data-typeahead-label-field:
+              is set:     typeahead expression "label as item for item in getTypeaheadItems() | filter:$viewValue"
+              is not set: typeahead expression "label as item.LABEL_FIELD for item in getTypeaheadItems() | filter:$viewValue"
+          -->
           <div inclist-input
-               data-placeholder="Overridden placeholder"
+
                data-inclist-form="inclistForm"
+
                data-input-type="email"
-               data-typeahead-label-field="name"
+
                data-typeahead-template="customTemplate.html"
+
+               data-typeahead-items="typeaheadSrc"
+               data-typeahead-label-field="name"
+
+               data-typeahead-restrict
+               data-typeahead-restrict-valid-excl
+
+               data-placeholder="Overridden placeholder"
               >
 
               </div>
@@ -63,11 +70,11 @@
     </div>
   </div>
 
-  <button ng-click="printForm()"></button>
-
-  <div>error = {{inclistForm.inclistFormItemInput.$error.email}}</div>
+<!--
+  <div>form error = {{inclistForm.$invalid}}</div>
   <div>list1 = {{list1}}</div>
-
+  <div>selection = {{selection}}</div>
+-->
 
 
 </div>

@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.0 - 2014-11-21
+ * Version: 0.1.3 - 2014-11-21
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -12,19 +12,22 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
       return {
         restrict: "AE",
         scope: {
-          items: '=inclistItems',
-          typeaheadItems: '='
+          items: '=inclistItems'
         },
 
         controller: function ($scope) {
 
+          $scope.typeaheadItems = [];
+
           this.addItem = function (selection, validForRestrictExcl) {
+
+            console.log("addItem selection", selection);
+
             if (
                 angular.isDefined(selection) &&
                 selection !== "" &&
                 (!$scope.isUnique || !_isItemExist(selection, $scope.items, $scope.itemsField)) &&
-                (!$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadItemsSearchFields) || $scope.isTypeaheadRestrictValidExcl) &&
-                (!$scope.isTypeaheadRestrictValidExcl || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadItemsSearchFields) || validForRestrictExcl)
+                (!$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadLabelField) || ($scope.isTypeaheadRestrictValidExcl && validForRestrictExcl))
             ) {
               var itemToAdd = _find(selection, $scope.typeaheadItems, $scope.itemsField);
               if (itemToAdd === undefined) {
@@ -59,22 +62,24 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
             $scope.items = result;
           };
 
-          this.getTypeaheadFlatItems = function () {
-            var result = [];
-            angular.forEach($scope.typeaheadItems,
-                function (item) {
-                  if (angular.isObject(item) && angular.isUndefined(item[$scope.itemsField])) {
-                    throw new Error("Typeahead list should contain objects with " +
-                        "'" + $scope.itemsField + "' field to extract string value from");
-                  }
-                  result.push(item[$scope.itemsField]);
-                }
-            );
-            return result;
+          this.setTypeaheadItems = function (typeaheadItems) {
+            $scope.typeaheadItems = typeaheadItems;
           };
 
           this.getTypeaheadItems = function () {
             return $scope.typeaheadItems;
+          };
+
+          this.setTypeaheadRestrict = function (isTypeaheadRestrict) {
+            $scope.isTypeaheadRestrict = isTypeaheadRestrict;
+          };
+
+          this.setTypeaheadRestrictValidExcl = function (isTypeaheadRestrictValidExcl) {
+            $scope.isTypeaheadRestrictValidExcl = isTypeaheadRestrictValidExcl;
+          };
+
+          this.setTypeaheadLabelField = function (typeaheadLabelField) {
+            $scope.typeaheadLabelField = typeaheadLabelField;
           };
 
           //var _isItemExist = function (value, list, fieldName) {
@@ -85,21 +90,17 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
           //  return result;
           //};
 
-          var _isItemExist = function (value, list, fieldNames) {
+          var _isItemExist = function (value, list, labelField) {
             var exists = false;
             angular.forEach(list, function (item) {
               if (!exists) {
-                console.log("searching item ", item, " in ", list, " by ", fieldNames, " for ", value);
+                console.log("searching item ", item, " in ", list, " by ", labelField, " for ", value);
                 //console.log("searching in ", item, " by ", fieldNames);
-                if (fieldNames instanceof Array) {
-                  angular.forEach(fieldNames, function (fieldName) {
-                    if (item[fieldName] == value) { exists = true; }
-                    console.log("s:::: ", fieldName, item[fieldName], value, exists);
-                  });
+                if (labelField !== undefined) {
+                  if (item[labelField] == value) { exists = true; }
                 }
                 else {
-                  if (item[fieldNames] == value) { exists = true; }
-                  console.log("s!!!!! ", fieldNames, item[fieldNames], value, exists);
+                  if (item == value) { exists = true; }
                 }
               }
             });
@@ -118,19 +119,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
         link: function (scope, element, attrs) {
           scope.isUnique = angular.isDefined(attrs.inclistUnique);
-          scope.isTypeaheadRestrict = angular.isDefined(attrs.typeaheadRestrict);
-          scope.isTypeaheadRestrictValidExcl = angular.isDefined(attrs.typeaheadRestrictValidExcl);
-
-          if (angular.isDefined(attrs.typeaheadItemsSearchFields)) {
-            scope.typeaheadItemsSearchFields = attrs.typeaheadItemsSearchFields.replace(/\s+/, "").split(",");
-          }
-          else {
-            scope.typeaheadItemsSearchFields = "name";
-          }
 
           scope.itemsField = attrs.inclistField;
-
-          console.log("scope.typeaheadItemsSearchFields", scope.typeaheadItemsSearchFields);
         }
       };
     })
@@ -140,7 +130,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
         require: "^inclist",
         restrict: "AE",
         scope: {
-          inclistForm: "="
+          inclistForm: "=",
+          typeaheadItems: "="
         },
         replace: true,
         templateUrl: 'template/inclist/inclist-input.html',
@@ -149,37 +140,55 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
           tElement.find('input').attr('ng-model', 'selection');
 
-          var labelField = tAttrs.typeaheadLabelField || "name";
-
-          tElement.find('input')
-              .attr('typeahead', 'label as item.' + labelField + ' for item in getTypeaheadItems() | filter:$viewValue');
-          //tElement.find('input').attr('typeahead', 'item for item in getTypeaheadItems() | filter:$viewValue');
-
-          console.log("tAttrs.typeaheadTemplate", tAttrs.typeaheadTemplate);
+          if (tAttrs.typeaheadLabelField) {
+            tElement.find('input').attr(
+              'typeahead',
+              'item as item.'+tAttrs.typeaheadLabelField+' for item in getTypeaheadItems() | filter:$viewValue'
+            );
+          }
+          else {
+            tElement.find('input').attr(
+              'typeahead',
+              'item as item for item in getTypeaheadItems() | filter:$viewValue'
+            );
+          }
 
           if (tAttrs.typeaheadTemplate) {
             tElement.find('input').attr('typeahead-template-url', tAttrs.typeaheadTemplate);
           }
 
-          if (tAttrs.inputType) {
-            tElement.find('input').attr('type', tAttrs.inputType);
-          }
-
           return function (scope, element, attrs, inclistCtrl) {
 
-            //console.log("inclistForm", scope.inclistForm);
+            console.log("inclistInput scope", scope);
 
             // Override placeholder if new one is defined
             element.find('input').attr('placeholder', attrs.placeholder);
 
-            //if (attrs.inputType) {
-            //  element.find('input').attr('type', attrs.inputType);
-            //  console.log("inclistForm inputType", attrs.inputType);
-            //}
+            if (scope.typeaheadItems && scope.typeaheadItems instanceof Array) {
+              inclistCtrl.setTypeaheadItems(scope.typeaheadItems);
+            }
+            inclistCtrl.setTypeaheadLabelField(attrs.typeaheadLabelField);
+
+            inclistCtrl.setTypeaheadRestrict(angular.isDefined(attrs.typeaheadRestrict));
+            inclistCtrl.setTypeaheadRestrictValidExcl(angular.isDefined(attrs.typeaheadRestrictValidExcl));
 
             scope.addItemFromSelection = function () {
 
-              if (inclistCtrl.addItem(scope.selection, !scope.inclistForm.inclistFormItemInput.$error.email)) {
+              console.log("addItemFromSelection scope.selection", scope.selection);
+
+              var selection;
+
+              if (scope.selection instanceof Object) {
+                selection = scope.selection[attrs.typeaheadLabelField];
+              }
+              else {
+                if (tAttrs.inputType == 'email' && !scope.selection.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+.[a-z0-9-]/)) {
+                  return 0;
+                }
+                selection = scope.selection;
+              }
+
+              if (inclistCtrl.addItem(selection, scope.inclistForm.$valid)) {
                 scope.selection = "";
                 scope.$apply();
               }
