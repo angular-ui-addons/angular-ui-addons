@@ -4,8 +4,8 @@
   "dependencies": {
     "angular": "1.2.*",
     "angular-sanitize": "1.2.*",
-    "angular-bootstrap": "~0.9.0",
-    "bootstrap": "~3.0.3",
+    "angular-bootstrap": "*",
+    "bootstrap": "*",
     "underscore": "*"
   },
   "devDependencies": {
