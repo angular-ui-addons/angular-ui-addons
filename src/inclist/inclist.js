@@ -62,6 +62,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             $scope.typeaheadItems = typeaheadItems;
           };
 
+          this.setTypeaheadOnSelect = function (typeaheadOnSelect) {
+            $scope.typeaheadOnSelect = typeaheadOnSelect;
+          };
+
           this.setTypeaheadRestrict = function (isTypeaheadRestrict) {
             $scope.isTypeaheadRestrict = isTypeaheadRestrict;
           };
@@ -123,7 +127,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
       };
     })
 
-    .directive('inclistInput', function () {
+    .directive('inclistInput', ['$timeout', function ($timeout) {
       return {
         require: "^inclist",
         restrict: "AE",
@@ -159,6 +163,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           tElement.find('input').attr('typeahead-focus', '');
 
+          tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
+
           return function (scope, element, attrs, inclistCtrl) {
 
             console.log("inclistInput scope", scope);
@@ -174,7 +180,9 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             inclistCtrl.setTypeaheadRestrict(angular.isDefined(attrs.typeaheadRestrict));
             inclistCtrl.setTypeaheadRestrictValidExcl(angular.isDefined(attrs.typeaheadRestrictValidExcl));
 
-            scope.addItemFromSelection = function () {
+            scope.addItemFromSelection = function (sel) {
+
+              if (sel) { scope.selection = sel; }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 
@@ -196,6 +204,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             };
 
+            scope.typeaheadOnSelect = function ($item, $model, $label) {
+              $timeout(function() { scope.addItemFromSelection($item); }, 0);
+            };
+
             element.on('submit', scope.addItemFromSelection);
 
           };
@@ -203,7 +215,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
         }
 
       };
-    })
+    }])
 
     .directive('inclistOut', function () {
       return {

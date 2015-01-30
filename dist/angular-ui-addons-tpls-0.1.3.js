@@ -113,6 +113,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             $scope.typeaheadItems = typeaheadItems;
           };
 
+          this.setTypeaheadOnSelect = function (typeaheadOnSelect) {
+            $scope.typeaheadOnSelect = typeaheadOnSelect;
+          };
+
           this.setTypeaheadRestrict = function (isTypeaheadRestrict) {
             $scope.isTypeaheadRestrict = isTypeaheadRestrict;
           };
@@ -174,7 +178,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
       };
     })
 
-    .directive('inclistInput', function () {
+    .directive('inclistInput', ['$timeout', function ($timeout) {
       return {
         require: "^inclist",
         restrict: "AE",
@@ -210,6 +214,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           tElement.find('input').attr('typeahead-focus', '');
 
+          tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
+
           return function (scope, element, attrs, inclistCtrl) {
 
             console.log("inclistInput scope", scope);
@@ -225,26 +231,32 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             inclistCtrl.setTypeaheadRestrict(angular.isDefined(attrs.typeaheadRestrict));
             inclistCtrl.setTypeaheadRestrictValidExcl(angular.isDefined(attrs.typeaheadRestrictValidExcl));
 
-            scope.addItemFromSelection = function () {
+            scope.addItemFromSelection = function (selection) {
+
+              if (selection) { scope.selection = selection; }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 
-              var selection;
+              var sel;
 
               if (scope.selection instanceof Object) {
-                selection = scope.selection[attrs.typeaheadLabelField];
+                sel = scope.selection[attrs.typeaheadLabelField];
               }
               else {
                 if (tAttrs.inputType == 'email' && !scope.selection.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+.[a-z0-9-]/)) {
                   return 0;
                 }
-                selection = scope.selection;
+                sel = scope.selection;
               }
 
-              if (inclistCtrl.addItem(selection, scope.inclistForm.$valid)) {
+              if (inclistCtrl.addItem(sel, scope.inclistForm.$valid)) {
                 scope.selection = "";
                 scope.$apply();
               }
+            };
+
+            scope.typeaheadOnSelect = function ($item, $model, $label) {
+              $timeout(function() { scope.addItemFromSelection($item); }, 0);
             };
 
             element.on('submit', scope.addItemFromSelection);
@@ -254,7 +266,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
         }
 
       };
-    })
+    }])
 
     .directive('inclistOut', function () {
       return {
