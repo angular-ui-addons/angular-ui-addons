@@ -231,25 +231,25 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             inclistCtrl.setTypeaheadRestrict(angular.isDefined(attrs.typeaheadRestrict));
             inclistCtrl.setTypeaheadRestrictValidExcl(angular.isDefined(attrs.typeaheadRestrictValidExcl));
 
-            scope.addItemFromSelection = function (selection) {
+            scope.addItemFromSelection = function (sel) {
 
-              if (selection) { scope.selection = selection; }
+              if (sel && !sel instanceof Event) { scope.selection = sel; }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 
-              var sel;
+              var selection;
 
               if (scope.selection instanceof Object) {
-                sel = scope.selection[attrs.typeaheadLabelField];
+                selection = scope.selection[attrs.typeaheadLabelField];
               }
               else {
                 if (tAttrs.inputType == 'email' && !scope.selection.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+.[a-z0-9-]/)) {
                   return 0;
                 }
-                sel = scope.selection;
+                selection = scope.selection;
               }
 
-              if (inclistCtrl.addItem(sel, scope.inclistForm.$valid)) {
+              if (inclistCtrl.addItem(selection, scope.inclistForm.$valid)) {
                 scope.selection = "";
                 scope.$apply();
               }

@@ -182,7 +182,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             scope.addItemFromSelection = function (sel) {
 
-              if (sel) { scope.selection = sel; }
+              if (sel && !(sel instanceof Event)) { scope.selection = sel; }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 
