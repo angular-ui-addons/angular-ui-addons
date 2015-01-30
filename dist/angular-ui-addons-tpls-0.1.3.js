@@ -2,12 +2,54 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.3 - 2014-11-21
+ * Version: 0.1.3 - 2015-01-30
  * License: MIT
  */
-angular.module("angular-ui-addons", ["angular-ui-addons.templates", "angular-ui-addons.inclist","angular-ui-addons.validation"]);
+angular.module("angular-ui-addons", ["angular-ui-addons.templates", "angular-ui-addons.typeahead","angular-ui-addons.inclist","angular-ui-addons.validation"]);
 angular.module("angular-ui-addons.templates", ["template/inclist/inclist-input.html","template/inclist/inclist-out-list.html"]);
-angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
+angular.module('angular-ui-addons.typeahead', ['ui.bootstrap'])
+
+    .directive('typeaheadFocus', function () {
+      return {
+        require: 'ngModel',
+
+        link: function (scope, element, attr, ngModel) {
+
+          console.log("typeaheadFocus processing");
+
+          //trigger the popup on 'click' because 'focus'
+          //is also triggered after the item selection
+          element.bind('click', function () {
+
+            console.log("typeaheadFocus triggering");
+
+            var viewValue = ngModel.$viewValue;
+
+            //restore to null value so that the typeahead can detect a change
+            if (ngModel.$viewValue == ' ') {
+              ngModel.$setViewValue(null);
+            }
+
+            //force trigger the popup
+            ngModel.$setViewValue(' ');
+
+            //set the actual value in case there was already a value in the input
+            ngModel.$setViewValue(viewValue || ' ');
+          });
+
+          //compare function that treats the empty space as a match
+          scope.emptyOrMatch = function (actual, expected) {
+            if (expected == ' ') {
+              return true;
+            }
+            return actual.indexOf(expected) > -1;
+          };
+        }
+      };
+    });
+
+
+angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.typeahead'])
 
     .directive('inclist', function () {
       return {
@@ -59,7 +101,11 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
           this.removeItem = function (value) {
             var result = [];
-            angular.forEach($scope.items, function (item) { if (item[$scope.itemsField] != value) { result.push(item); } });
+            angular.forEach($scope.items, function (item) {
+              if (item[$scope.itemsField] != value) {
+                result.push(item);
+              }
+            });
             $scope.items = result;
           };
 
@@ -94,10 +140,14 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
                 console.log("searching item ", item, " in ", list, " by ", labelField, " for ", value);
                 //console.log("searching in ", item, " by ", fieldNames);
                 if (labelField !== undefined) {
-                  if (item[labelField] == value) { exists = true; }
+                  if (item[labelField] == value) {
+                    exists = true;
+                  }
                 }
                 else {
-                  if (item == value) { exists = true; }
+                  if (item == value) {
+                    exists = true;
+                  }
                 }
               }
             });
@@ -107,7 +157,9 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
           var _find = function (value, list, fieldName) {
             var result;
             angular.forEach(list, function (item) {
-              if (item[fieldName] == value) { result = item; }
+              if (item[fieldName] == value) {
+                result = item;
+              }
             });
             return result;
           };
@@ -139,20 +191,24 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
           if (tAttrs.typeaheadLabelField) {
             tElement.find('input').attr(
-              'typeahead',
-              'item as item.'+tAttrs.typeaheadLabelField+' for item in typeaheadItems | filter:$viewValue'
+                'typeahead',
+                'item as item.' + tAttrs.typeaheadLabelField + ' for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
             );
           }
           else {
             tElement.find('input').attr(
-              'typeahead',
-              'item as item for item in typeaheadItems | filter:$viewValue'
+                'typeahead',
+                'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
             );
           }
 
           if (tAttrs.typeaheadTemplate) {
             tElement.find('input').attr('typeahead-template-url', tAttrs.typeaheadTemplate);
           }
+
+          tElement.find('input').attr('typeahead-min-length', '0');
+
+          tElement.find('input').attr('typeahead-focus', '');
 
           return function (scope, element, attrs, inclistCtrl) {
 
@@ -211,7 +267,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap'])
 
           scope.items = inclistCtrl.getItems();
 
-          scope.getFlatItem = function(item) {
+          scope.getFlatItem = function (item) {
             return inclistCtrl.getFlatItem(item);
           };
 

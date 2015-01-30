@@ -1,4 +1,4 @@
-angular.module('inclistTest', ['ngSanitize', 'angular-ui-addons.inclist'])
+angular.module('inclistTest', ['ngSanitize', 'angular-ui-addons'])
 
     .filter('replace', function() {
       return function(text, needle, replacement) {
