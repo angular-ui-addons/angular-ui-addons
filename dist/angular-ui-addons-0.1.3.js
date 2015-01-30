@@ -215,6 +215,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
 
+          tElement.find('input').attr('ng-blur', 'typeaheadInputOnBlur()');
+
           return function (scope, element, attrs, inclistCtrl) {
 
             console.log("inclistInput scope", scope);
@@ -232,7 +234,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             scope.addItemFromSelection = function (sel) {
 
-              if (sel && !sel instanceof Event) { scope.selection = sel; }
+              if (sel && !(sel instanceof Event)) { scope.selection = sel; }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 
@@ -256,6 +258,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             scope.typeaheadOnSelect = function ($item, $model, $label) {
               $timeout(function() { scope.addItemFromSelection($item); }, 0);
+            };
+
+            scope.typeaheadInputOnBlur = function () {
+              $timeout(function() { scope.addItemFromSelection(); }, 0);
             };
 
             element.on('submit', scope.addItemFromSelection);
