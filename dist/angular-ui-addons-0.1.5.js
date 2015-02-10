@@ -206,6 +206,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             }
           );
+
+          element.bind("click", function() { element.find('input')[0].focus(); });
         }
       };
     })
