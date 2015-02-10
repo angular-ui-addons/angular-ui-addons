@@ -136,6 +136,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             $scope.inclistForm = inclistForm;
           };
 
+          this.setInclistFocused = function (focused) {
+            $scope.inclistFocused = focused;
+          };
+
           var _isItemExist = function (value, list, labelField) {
             var exists = false;
             angular.forEach(list, function (item) {
@@ -191,6 +195,18 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             }
           );
+
+          scope.$watch(
+            function() { return scope.inclistFocused; },
+            function() {
+              if (scope.inclistFocused) {
+                element.addClass("focus");
+              }
+              else {
+                element.removeClass("focus");
+              }
+            }
+          );
         }
       };
     })
@@ -209,10 +225,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           $scope.typeaheadOnSelect = function ($item, $model, $label) {
             $timeout(function() { $scope.addItemFromSelection($item); }, 0);
-          };
-
-          $scope.inputOnBlur = function () {
-            $timeout(function() { $scope.addItemFromSelection(); }, 0);
           };
 
         }],
@@ -253,6 +265,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           }
 
+          tElement.find('input').attr('ng-focus', 'inputOnFocus()');
           tElement.find('input').attr('ng-blur', 'inputOnBlur()');
           tElement.find('input').attr('placeholder', tAttrs.placeholder);
 
@@ -292,6 +305,14 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 scope.selection = "";
                 if (!scope.$$phase) { scope.$apply(); }
               }
+            };
+
+            scope.inputOnBlur = function () {
+              $timeout(function() { scope.addItemFromSelection(); inclistCtrl.setInclistFocused(false); }, 0);
+            };
+
+            scope.inputOnFocus = function () {
+              $timeout(function() { scope.addItemFromSelection(); inclistCtrl.setInclistFocused(true); }, 0);
             };
 
             element.on('submit', scope.addItemFromSelection);
