@@ -160,7 +160,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             $timeout(function() { $scope.addItemFromSelection($item); }, 0);
           };
 
-          $scope.typeaheadInputOnBlur = function () {
+          $scope.inputOnBlur = function () {
             $timeout(function() { $scope.addItemFromSelection(); }, 0);
           };
 
@@ -200,10 +200,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
 
-            tElement.find('input').attr('ng-blur', 'typeaheadInputOnBlur()');
-
-            tElement.find('input').attr('placeholder', tAttrs.placeholder);
           }
+
+          tElement.find('input').attr('ng-blur', 'inputOnBlur()');
+          tElement.find('input').attr('placeholder', tAttrs.placeholder);
 
           return function (scope, element, attrs, inclistCtrl) {
 

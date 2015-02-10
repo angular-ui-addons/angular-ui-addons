@@ -66,7 +66,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           this.addItem = function (selection) {
 
-            //console.log("addItem $scope", $scope);
+            console.log("addItem selection", selection);
 
             if (
                 angular.isDefined(selection) &&
@@ -210,7 +210,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             $timeout(function() { $scope.addItemFromSelection($item); }, 0);
           };
 
-          $scope.typeaheadInputOnBlur = function () {
+          $scope.inputOnBlur = function () {
             $timeout(function() { $scope.addItemFromSelection(); }, 0);
           };
 
@@ -250,10 +250,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
 
-            tElement.find('input').attr('ng-blur', 'typeaheadInputOnBlur()');
-
-            tElement.find('input').attr('placeholder', tAttrs.placeholder);
           }
+
+          tElement.find('input').attr('ng-blur', 'inputOnBlur()');
+          tElement.find('input').attr('placeholder', tAttrs.placeholder);
 
           return function (scope, element, attrs, inclistCtrl) {
 
@@ -276,7 +276,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
               if (!scope.selection || scope.selection.length === 0) { return 0; }
 
-              console.log("addItemFromSelection scope", scope);
               console.log("addItemFromSelection scope.selection", scope.selection);
 
               var selection;
@@ -330,38 +329,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
     });
 
 
-angular.module('angular-ui-addons.validation', [])
-
-    .directive('strongPassword', function () {
-
-      var isValid = function(pass) {
-        return pass && pass.length > 6;
-      };
-
-
-      return {
-        require: 'ngModel',
-        link: function (scope, element, attrs, ngModelCtrl) {
-//          console.log(scope);
-
-          ngModelCtrl.$parsers.unshift(function (viewValue) {
-            var valid = isValid(viewValue);
-
-            ngModelCtrl.$setValidity('strongPass', valid);
-            return viewValue;
-          });
-
-          ngModelCtrl.$formatters.unshift(function (modelValue) {
-
-            var valid = isValid(modelValue);
-
-            ngModelCtrl.$setValidity('strongPass', valid);
-            return modelValue;
-          });
-
-        }
-      };
-    });
 angular.module('angular-ui-addons.validation', [])
 
     .directive('strongPassword', function () {
