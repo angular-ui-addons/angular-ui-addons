@@ -186,7 +186,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
         require: "^inclist",
         restrict: "AE",
         scope: {
-          inclistForm: "=",
+          inclistForm: "@",
           typeaheadItems: "="
         },
         replace: true,
@@ -243,7 +243,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             scope.addItemFromSelection = function (sel) {
 
-              if (sel && !(sel instanceof Event)) { scope.selection = sel; }
+              if (sel && !(sel instanceof Event) && !(jQuery || sel instanceof jQuery.Event)) { scope.selection = sel; }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 
@@ -262,7 +262,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 selection = scope.selection;
               }
 
-              if (inclistCtrl.addItem(selection, scope.inclistForm.$valid)) {
+              if (inclistCtrl.addItem(selection, scope[scope.inclistForm].$valid)) {
                 scope.selection = "";
                 scope.$apply();
               }
