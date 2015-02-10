@@ -1,3 +1,6 @@
+EMAIL_REGEXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+.[a-z0-9-]/;
+URL_REGEXP = /(http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/;
+
 angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.typeahead'])
 
     .directive('inclist', function () {
@@ -19,7 +22,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 angular.isDefined(selection) &&
                 selection !== "" &&
                 (!$scope.isUnique || !_isItemExist(selection, $scope.items, $scope.itemsField)) &&
-                (!$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadLabelField) || ($scope.isTypeaheadRestrictValidExcl && validForRestrictExcl))
+                (!$scope.typeaheadItems || $scope.typeaheadItems.length === 0 || !$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadLabelField) || ($scope.isTypeaheadRestrictValidExcl && validForRestrictExcl))
             ) {
               var itemToAdd = _find(selection, $scope.typeaheadItems, $scope.itemsField);
               if (itemToAdd === undefined) {
@@ -142,30 +145,34 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           tElement.find('input').attr('ng-model', 'selection');
 
-          if (tAttrs.typeaheadLabelField) {
-            tElement.find('input').attr(
-                'typeahead',
-                'item as item.' + tAttrs.typeaheadLabelField + ' for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
-            );
+          if (angular.isDefined(tAttrs.typeaheadItems)) {
+
+            if (tAttrs.typeaheadLabelField) {
+              tElement.find('input').attr(
+                  'typeahead',
+                  'item as item.' + tAttrs.typeaheadLabelField + ' for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
+              );
+            }
+            else {
+              tElement.find('input').attr(
+                  'typeahead',
+                  'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
+              );
+            }
+
+            if (tAttrs.typeaheadTemplate) {
+              tElement.find('input').attr('typeahead-template-url', tAttrs.typeaheadTemplate);
+            }
+
+            tElement.find('input').attr('typeahead-min-length', '0');
+
+            tElement.find('input').attr('typeahead-focus', '');
+
+            tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
+
+            tElement.find('input').attr('ng-blur', 'typeaheadInputOnBlur()');
+
           }
-          else {
-            tElement.find('input').attr(
-                'typeahead',
-                'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
-            );
-          }
-
-          if (tAttrs.typeaheadTemplate) {
-            tElement.find('input').attr('typeahead-template-url', tAttrs.typeaheadTemplate);
-          }
-
-          tElement.find('input').attr('typeahead-min-length', '0');
-
-          tElement.find('input').attr('typeahead-focus', '');
-
-          tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
-
-          tElement.find('input').attr('ng-blur', 'typeaheadInputOnBlur()');
 
           return function (scope, element, attrs, inclistCtrl) {
 
@@ -176,11 +183,12 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             if (scope.typeaheadItems && scope.typeaheadItems instanceof Array) {
               inclistCtrl.setTypeaheadItems(scope.typeaheadItems);
-            }
-            inclistCtrl.setTypeaheadLabelField(attrs.typeaheadLabelField);
 
-            inclistCtrl.setTypeaheadRestrict(angular.isDefined(attrs.typeaheadRestrict));
-            inclistCtrl.setTypeaheadRestrictValidExcl(angular.isDefined(attrs.typeaheadRestrictValidExcl));
+              inclistCtrl.setTypeaheadLabelField(attrs.typeaheadLabelField);
+
+              inclistCtrl.setTypeaheadRestrict(angular.isDefined(attrs.typeaheadRestrict));
+              inclistCtrl.setTypeaheadRestrictValidExcl(angular.isDefined(attrs.typeaheadRestrictValidExcl));
+            }
 
             scope.addItemFromSelection = function (sel) {
 
@@ -190,11 +198,14 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
               var selection;
 
-              if (scope.selection instanceof Object) {
+              if (scope.selection instanceof Object && scope.typeaheadItems) {
                 selection = scope.selection[attrs.typeaheadLabelField];
               }
               else {
-                if (tAttrs.inputType == 'email' && !scope.selection.match(/^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+.[a-z0-9-]/)) {
+                if (tAttrs.inputType == 'email' && !scope.selection.match(EMAIL_REGEXP)) {
+                  return 0;
+                }
+                else if (tAttrs.inputType == 'url' && !scope.selection.match(URL_REGEXP)) {
                   return 0;
                 }
                 selection = scope.selection;
