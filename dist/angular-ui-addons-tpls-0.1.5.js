@@ -65,15 +65,15 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           $scope.typeaheadItems = [];
 
-          this.addItem = function (selection, validForRestrictExcl) {
+          this.addItem = function (selection) {
 
-            console.log("addItem selection", selection);
+            //console.log("addItem $scope", $scope);
 
             if (
                 angular.isDefined(selection) &&
                 selection !== "" &&
                 (!$scope.isUnique || !_isItemExist(selection, $scope.items, $scope.itemsField)) &&
-                (!$scope.typeaheadItems || $scope.typeaheadItems.length === 0 || !$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadLabelField) || ($scope.isTypeaheadRestrictValidExcl && validForRestrictExcl))
+                (!$scope.typeaheadItems || $scope.typeaheadItems.length === 0 || !$scope.isTypeaheadRestrict || _isItemExist(selection, $scope.typeaheadItems, $scope.typeaheadLabelField) || ($scope.isTypeaheadRestrictValidExcl && $scope.inclistForm.$valid))
             ) {
               var itemToAdd = _find(selection, $scope.typeaheadItems, $scope.itemsField);
               if (itemToAdd === undefined) {
@@ -132,13 +132,9 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             $scope.typeaheadLabelField = typeaheadLabelField;
           };
 
-          //var _isItemExist = function (value, list, fieldName) {
-          //  var result = false;
-          //  angular.forEach(list, function (item) {
-          //    if (item[fieldName] == value) { result = true; }
-          //  });
-          //  return result;
-          //};
+          this.setInclistForm = function (inclistForm) {
+            $scope.inclistForm = inclistForm;
+          };
 
           var _isItemExist = function (value, list, labelField) {
             var exists = false;
@@ -177,6 +173,24 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
           scope.isUnique = angular.isDefined(attrs.inclistUnique);
 
           scope.itemsField = attrs.inclistField;
+
+          // Watch inclistForm validity
+          scope.$watch(
+            function() { return scope.inclistForm ? scope.inclistForm.$valid : undefined; },
+            function() {
+              //console.log("inclist: form validity changed");
+              //console.log("scope.inclistForm", scope.inclistForm);
+
+              if (scope.inclistForm && scope.inclistForm.$invalid) {
+                element.addClass(attrs.inclistInvalidClass);
+                element.removeClass(attrs.inclistValidClass);
+              }
+              else {
+                element.addClass(attrs.inclistValidClass);
+                element.removeClass(attrs.inclistInvalidClass);
+              }
+            }
+          );
         }
       };
     })
@@ -186,14 +200,30 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
         require: "^inclist",
         restrict: "AE",
         scope: {
-          inclistForm: "@",
           typeaheadItems: "="
         },
         replace: true,
         templateUrl: 'template/inclist/inclist-input.html',
 
-        compile: function (tElement, tAttrs) {
+        controller: ['$scope', function ($scope) {
 
+          $scope.typeaheadOnSelect = function ($item, $model, $label) {
+            $timeout(function() { $scope.addItemFromSelection($item); }, 0);
+          };
+
+          $scope.typeaheadInputOnBlur = function () {
+            $timeout(function() { $scope.addItemFromSelection(); }, 0);
+          };
+
+        }],
+
+        compile: function (tElement, tAttrs) {
+          console.log("tElement", tElement);
+
+          tElement.find('form').attr('name', 'inclistForm');
+
+          tElement.find('input').attr('type', tAttrs.inputType);
+          tElement.find('input').attr('name', 'selection');
           tElement.find('input').attr('ng-model', 'selection');
 
           if (angular.isDefined(tAttrs.typeaheadItems)) {
@@ -223,14 +253,14 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             tElement.find('input').attr('ng-blur', 'typeaheadInputOnBlur()');
 
+            tElement.find('input').attr('placeholder', tAttrs.placeholder);
           }
 
           return function (scope, element, attrs, inclistCtrl) {
 
             console.log("inclistInput scope", scope);
 
-            // Override placeholder if new one is defined
-            element.find('input').attr('placeholder', attrs.placeholder);
+            inclistCtrl.setInclistForm(scope.inclistForm);
 
             if (scope.typeaheadItems && scope.typeaheadItems instanceof Array) {
               inclistCtrl.setTypeaheadItems(scope.typeaheadItems);
@@ -245,6 +275,9 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
               if (sel && !(sel instanceof Event) && !(jQuery || sel instanceof jQuery.Event)) { scope.selection = sel; }
 
+              if (!scope.selection || scope.selection.length === 0) { return 0; }
+
+              console.log("addItemFromSelection scope", scope);
               console.log("addItemFromSelection scope.selection", scope.selection);
 
               var selection;
@@ -253,30 +286,18 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 selection = scope.selection[attrs.typeaheadLabelField];
               }
               else {
-                if (tAttrs.inputType == 'email' && !scope.selection.match(EMAIL_REGEXP)) {
-                  return 0;
-                }
-                else if (tAttrs.inputType == 'url' && !scope.selection.match(URL_REGEXP)) {
-                  return 0;
-                }
                 selection = scope.selection;
               }
 
-              if (inclistCtrl.addItem(selection, scope[scope.inclistForm].$valid)) {
+              if (selection && scope.inclistForm.$valid && inclistCtrl.addItem(selection)) {
                 scope.selection = "";
-                scope.$apply();
+                if (!scope.$$phase) { scope.$apply(); }
               }
             };
 
-            scope.typeaheadOnSelect = function ($item, $model, $label) {
-              $timeout(function() { scope.addItemFromSelection($item); }, 0);
-            };
-
-            scope.typeaheadInputOnBlur = function () {
-              $timeout(function() { scope.addItemFromSelection(); }, 0);
-            };
-
             element.on('submit', scope.addItemFromSelection);
+
+            //console.log("inclistInput link scope", scope);
 
           };
 
@@ -342,20 +363,54 @@ angular.module('angular-ui-addons.validation', [])
         }
       };
     });
+angular.module('angular-ui-addons.validation', [])
+
+    .directive('strongPassword', function () {
+
+      var isValid = function(pass) {
+        return pass && pass.length > 6;
+      };
+
+
+      return {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ngModelCtrl) {
+//          console.log(scope);
+
+          ngModelCtrl.$parsers.unshift(function (viewValue) {
+            var valid = isValid(viewValue);
+
+            ngModelCtrl.$setValidity('strongPass', valid);
+            return viewValue;
+          });
+
+          ngModelCtrl.$formatters.unshift(function (modelValue) {
+
+            var valid = isValid(modelValue);
+
+            ngModelCtrl.$setValidity('strongPass', valid);
+            return modelValue;
+          });
+
+        }
+      };
+    });
 angular.module("template/inclist/inclist-input.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("template/inclist/inclist-input.html",
-    "<form name=\"inclistForm\">\n" +
-    "  <!--\n" +
-    "    If using custom template you have to use <form> and <input> elements for the same as in current template\n" +
-    "    as of the directive 'inclist-input' will inject appropriate behavior based on these elements.\n" +
-    "  -->\n" +
-    "  <div class=\"input-group\">\n" +
-    "    <input type=\"text\" autocomplete=\"off\" class=\"form-control\"\n" +
-    "           placeholder=\"Type here and press enter to add property\">\n" +
+    "<div>\n" +
+    "  <form>\n" +
+    "    <!--\n" +
+    "      If using custom template you have to use <form> and <input> elements for the same as in current template\n" +
+    "      as of the directive 'inclist-input' will inject appropriate behavior based on these elements.\n" +
+    "    -->\n" +
+    "    <div class=\"input-group\">\n" +
+    "      <input autocomplete=\"off\" class=\"form-control\"\n" +
+    "             placeholder=\"Type here and press enter to add property\">\n" +
     "\n" +
-    "    <span class=\"input-group-btn\"><button class=\"btn btn-default\" type=\"submit\">+</button></span>\n" +
-    "  </div>\n" +
-    "</form>\n" +
+    "      <span class=\"input-group-btn\"><button class=\"btn btn-default\" type=\"submit\">+</button></span>\n" +
+    "    </div>\n" +
+    "  </form>\n" +
+    "</div>\n" +
     "");
 }]);
 
