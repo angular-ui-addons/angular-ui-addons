@@ -197,6 +197,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
           tElement.find('input').attr('name', 'selection');
           tElement.find('input').attr('ng-model', 'selection');
 
+          if (angular.isDefined(tAttrs.required)) {
+            tElement.find('input').attr('required', 'required');
+          }
+
           if (angular.isDefined(tAttrs.typeaheadItems)) {
 
             if (tAttrs.typeaheadLabelField) {

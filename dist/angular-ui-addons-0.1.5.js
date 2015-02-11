@@ -210,7 +210,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 element.removeClass("focus");
               }
               if (scope.inclistFocused === false && scope.inclistForm && scope.inclistForm.$dirty) {
-                element.addClass('blur-after-edit');
+                element.addClass('ng-blur-after-edit');
               }
             }
           );
@@ -246,6 +246,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
           tElement.find('input').attr('type', tAttrs.inputType);
           tElement.find('input').attr('name', 'selection');
           tElement.find('input').attr('ng-model', 'selection');
+
+          if (angular.isDefined(tAttrs.required)) {
+            tElement.find('input').attr('required', 'required');
+          }
 
           if (angular.isDefined(tAttrs.typeaheadItems)) {
 
