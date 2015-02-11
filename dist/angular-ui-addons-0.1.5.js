@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.5 - 2015-02-10
+ * Version: 0.1.5 - 2015-02-11
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.typeahead","angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -185,14 +185,19 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               //console.log("scope.inclistForm", scope.inclistForm);
 
               if (scope.inclistForm && scope.inclistForm.$invalid) {
-                element.addClass(attrs.inclistInvalidClass);
-                element.removeClass(attrs.inclistValidClass);
+                element.addClass('ng-invalid');
+                element.removeClass('ng-valid');
               }
               else {
-                element.addClass(attrs.inclistValidClass);
-                element.removeClass(attrs.inclistInvalidClass);
+                element.addClass('ng-valid');
+                element.removeClass('ng-invalid');
               }
             }
+          );
+
+          scope.$watch(
+            function() { return scope.inclistForm ? scope.inclistForm.$dirty : undefined; },
+            function() { if (scope.inclistForm && scope.inclistForm.$dirty) { element.addClass('ng-dirty'); } }
           );
 
           scope.$watch(

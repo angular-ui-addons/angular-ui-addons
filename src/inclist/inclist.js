@@ -135,14 +135,19 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               //console.log("scope.inclistForm", scope.inclistForm);
 
               if (scope.inclistForm && scope.inclistForm.$invalid) {
-                element.addClass(attrs.inclistInvalidClass);
-                element.removeClass(attrs.inclistValidClass);
+                element.addClass('ng-invalid');
+                element.removeClass('ng-valid');
               }
               else {
-                element.addClass(attrs.inclistValidClass);
-                element.removeClass(attrs.inclistInvalidClass);
+                element.addClass('ng-valid');
+                element.removeClass('ng-invalid');
               }
             }
+          );
+
+          scope.$watch(
+            function() { return scope.inclistForm ? scope.inclistForm.$dirty : undefined; },
+            function() { if (scope.inclistForm && scope.inclistForm.$dirty) { element.addClass('ng-dirty'); } }
           );
 
           scope.$watch(
