@@ -209,6 +209,9 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               else {
                 element.removeClass("focus");
               }
+              if (scope.inclistFocused === false && scope.inclistForm && scope.inclistForm.$dirty) {
+                element.addClass('blur-after-edit');
+              }
             }
           );
 
