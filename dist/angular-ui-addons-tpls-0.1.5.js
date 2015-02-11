@@ -171,12 +171,24 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             return result;
           };
 
+          $scope.checkItemsValidity = function () {
+            if ($scope.itemsRequired) {
+              if ($scope.items.length === 0) {
+                $scope.inclistForm.$setValidity('required-items', false);
+              } else {
+                $scope.inclistForm.$setValidity('required-items', true);
+              }
+            }
+          };
+
         },
 
         link: function (scope, element, attrs) {
           scope.isUnique = angular.isDefined(attrs.inclistUnique);
 
           scope.itemsField = attrs.inclistField;
+
+          scope.itemsRequired = angular.isDefined(attrs.required);
 
           // Watch inclistForm validity
           scope.$watch(
@@ -185,13 +197,13 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               //console.log("inclist: form validity changed");
               //console.log("scope.inclistForm", scope.inclistForm);
 
-              if (scope.inclistForm && scope.inclistForm.$invalid) {
-                element.addClass('ng-invalid');
-                element.removeClass('ng-valid');
-              }
-              else {
+              if (scope.inclistForm && scope.inclistForm.$valid) {
                 element.addClass('ng-valid');
                 element.removeClass('ng-invalid');
+              }
+              else {
+                element.addClass('ng-invalid');
+                element.removeClass('ng-valid');
               }
             }
           );
@@ -213,7 +225,13 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               if (scope.inclistFocused === false && scope.inclistForm && scope.inclistForm.$dirty) {
                 element.addClass('ng-blur-after-edit');
               }
+              if (scope.inclistFocused === false) { scope.checkItemsValidity(); }
             }
+          );
+
+          scope.$watch(
+            function() { return scope.items.length; },
+            function() { if (scope.inclistForm) { scope.inclistForm.$setDirty(); scope.checkItemsValidity(); } }
           );
 
           element.bind("click", function() { element.find('input')[0].focus(); });
@@ -247,10 +265,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
           tElement.find('input').attr('type', tAttrs.inputType);
           tElement.find('input').attr('name', 'selection');
           tElement.find('input').attr('ng-model', 'selection');
-
-          if (angular.isDefined(tAttrs.required)) {
-            tElement.find('input').attr('required', 'required');
-          }
 
           if (angular.isDefined(tAttrs.typeaheadItems)) {
 
@@ -315,7 +329,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 selection = scope.selection;
               }
 
-              if (selection && scope.inclistForm.$valid && inclistCtrl.addItem(selection)) {
+              if (selection && scope.inclistForm.selection.$valid && inclistCtrl.addItem(selection)) {
                 scope.selection = "";
                 if (!scope.$$phase) { scope.$apply(); }
               }
