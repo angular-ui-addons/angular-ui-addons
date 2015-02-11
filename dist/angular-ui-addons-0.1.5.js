@@ -141,16 +141,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             $scope.inclistFocused = focused;
           };
 
-          $scope.checkItemsValidity = function () {
-            if ($scope.itemsRequired) {
-              if ($scope.items.length === 0) {
-                $scope.inclistForm.$setValidity('required-items', false);
-              } else {
-                $scope.inclistForm.$setValidity('required-items', true);
-              }
-            }
-          };
-
           var _isItemExist = function (value, list, labelField) {
             var exists = false;
             angular.forEach(list, function (item) {
@@ -180,6 +170,16 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             });
             return result;
+          };
+
+          $scope.checkItemsValidity = function () {
+            if ($scope.itemsRequired) {
+              if ($scope.items.length === 0) {
+                $scope.inclistForm.$setValidity('required-items', false);
+              } else {
+                $scope.inclistForm.$setValidity('required-items', true);
+              }
+            }
           };
 
         },
