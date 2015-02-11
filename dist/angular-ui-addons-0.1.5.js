@@ -81,6 +81,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 itemToAdd[$scope.itemsField] = selection;
               }
               $scope.items.push(itemToAdd);
+              if ($scope.inclistForm) { $scope.inclistForm.$setDirty(); $scope.checkItemsValidity(); }
               return true;
             }
             return false;
@@ -109,6 +110,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             });
             $scope.items = result;
+            if ($scope.inclistForm) { $scope.inclistForm.$setDirty(); $scope.checkItemsValidity(); }
           };
 
           this.setTypeaheadItems = function (typeaheadItems) {
@@ -137,6 +139,16 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           this.setInclistFocused = function (focused) {
             $scope.inclistFocused = focused;
+          };
+
+          $scope.checkItemsValidity = function () {
+            if ($scope.itemsRequired) {
+              if ($scope.items.length === 0) {
+                $scope.inclistForm.$setValidity('required-items', false);
+              } else {
+                $scope.inclistForm.$setValidity('required-items', true);
+              }
+            }
           };
 
           var _isItemExist = function (value, list, labelField) {
@@ -168,16 +180,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             });
             return result;
-          };
-
-          $scope.checkItemsValidity = function () {
-            if ($scope.itemsRequired) {
-              if ($scope.items.length === 0) {
-                $scope.inclistForm.$setValidity('required-items', false);
-              } else {
-                $scope.inclistForm.$setValidity('required-items', true);
-              }
-            }
           };
 
         },
@@ -226,11 +228,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
               if (scope.inclistFocused === false) { scope.checkItemsValidity(); }
             }
-          );
-
-          scope.$watch(
-            function() { return scope.items.length; },
-            function() { if (scope.inclistForm) { scope.inclistForm.$setDirty(); scope.checkItemsValidity(); } }
           );
 
           element.bind("click", function() { element.find('input')[0].focus(); });

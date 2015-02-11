@@ -31,6 +31,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 itemToAdd[$scope.itemsField] = selection;
               }
               $scope.items.push(itemToAdd);
+              if ($scope.inclistForm) { $scope.inclistForm.$setDirty(); $scope.checkItemsValidity(); }
               return true;
             }
             return false;
@@ -59,6 +60,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             });
             $scope.items = result;
+            if ($scope.inclistForm) { $scope.inclistForm.$setDirty(); $scope.checkItemsValidity(); }
           };
 
           this.setTypeaheadItems = function (typeaheadItems) {
@@ -176,11 +178,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
               if (scope.inclistFocused === false) { scope.checkItemsValidity(); }
             }
-          );
-
-          scope.$watch(
-            function() { return scope.items.length; },
-            function() { if (scope.inclistForm) { scope.inclistForm.$setDirty(); scope.checkItemsValidity(); } }
           );
 
           element.bind("click", function() { element.find('input')[0].focus(); });
