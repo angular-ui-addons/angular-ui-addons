@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.5 - 2015-02-11
+ * Version: 0.1.5 - 2015-03-02
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.typeahead","angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -310,9 +310,13 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             scope.addItemFromSelection = function (sel) {
 
-              if (sel && !(sel instanceof Event) && !(jQuery || sel instanceof jQuery.Event)) { scope.selection = sel; }
+              if (sel && !(sel instanceof Event) && !(jQuery !== undefined && sel instanceof jQuery.Event)) {
+                scope.selection = sel;
+              }
 
-              if (!scope.selection || scope.selection.length === 0) { return 0; }
+              if (!scope.selection || scope.selection.length === 0 || scope.selection === " ") {
+                return 0;
+              }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 

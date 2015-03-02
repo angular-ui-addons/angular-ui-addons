@@ -260,9 +260,13 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
             scope.addItemFromSelection = function (sel) {
 
-              if (sel && !(sel instanceof Event) && !(jQuery || sel instanceof jQuery.Event)) { scope.selection = sel; }
+              if (sel && !(sel instanceof Event) && !(jQuery !== undefined && sel instanceof jQuery.Event)) {
+                scope.selection = sel;
+              }
 
-              if (!scope.selection || scope.selection.length === 0) { return 0; }
+              if (!scope.selection || scope.selection.length === 0 || scope.selection === " ") {
+                return 0;
+              }
 
               console.log("addItemFromSelection scope.selection", scope.selection);
 
