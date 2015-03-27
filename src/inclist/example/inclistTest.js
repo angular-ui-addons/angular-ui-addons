@@ -25,6 +25,11 @@ angular.module('inclistTest', ['ngSanitize', 'angular-ui-addons'])
         {id: "4", name: "Zebra", email: "mr.zebra@gmail.com"}
       ];
 
+      $scope.isValid = function(sel, list) {
+          // Some logic before adding to items list, (ex: check for valid email)
+          return true;
+      };
+
       $scope.printForm = function() {
         console.log("inclistForm inclistFormItemInput", $scope.inclistForm.inclistFormItemInput);
       };

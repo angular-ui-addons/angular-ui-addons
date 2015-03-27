@@ -1,7 +1,7 @@
 {
   "name": "angular-ui-addons",
   "author": "https://github.com/angular-ui-addons/angular-ui-addons/graphs/contributors",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "homepage": "http://angular-ui-addons.github.io",
   "dependencies": {},
   "devDependencies": {
