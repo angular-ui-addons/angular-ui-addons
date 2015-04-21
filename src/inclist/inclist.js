@@ -10,7 +10,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
           items: '=inclistItems'
         },
 
-        controller: function ($scope) {
+        controller: ['$scope', function ($scope) {
 
           $scope.typeaheadItems = [];
 
@@ -132,7 +132,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             }
           };
 
-        },
+        }],
 
         link: function (scope, element, attrs) {
           scope.isUnique = angular.isDefined(attrs.inclistUnique);

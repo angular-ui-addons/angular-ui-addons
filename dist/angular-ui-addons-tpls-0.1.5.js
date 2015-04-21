@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.5 - 2015-03-02
+ * Version: 0.1.5 - 2015-04-21
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.templates", "angular-ui-addons.typeahead","angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -61,7 +61,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
           items: '=inclistItems'
         },
 
-        controller: function ($scope) {
+        controller: ['$scope', function ($scope) {
 
           $scope.typeaheadItems = [];
 
@@ -183,7 +183,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             }
           };
 
-        },
+        }],
 
         link: function (scope, element, attrs) {
           scope.isUnique = angular.isDefined(attrs.inclistUnique);
