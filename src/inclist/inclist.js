@@ -17,7 +17,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           this.addItem = function (selection) {
 
-            if ($scope.validate && !$scope.validate({selection: selection, items: $scope.items})) {
+            if ($scope.validate && !$scope.validate({
+                  selection: selection,
+                  items: $scope.items
+                })) {
               return;
             }
 
@@ -36,7 +39,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
                 itemToAdd[$scope.itemsField] = selection;
               }
               $scope.items.push(itemToAdd);
-              if ($scope.inclistForm) { $scope.inclistForm.$setDirty(); $scope.checkItemsValidity(); }
+              if ($scope.inclistForm) {
+                $scope.inclistForm.$setDirty();
+                $scope.checkItemsValidity();
+              }
               return true;
             }
             return false;
@@ -65,7 +71,10 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
               }
             });
             $scope.items = result;
-            if ($scope.inclistForm) { $scope.inclistForm.$setDirty(); $scope.checkItemsValidity(); }
+            if ($scope.inclistForm) {
+              $scope.inclistForm.$setDirty();
+              $scope.checkItemsValidity();
+            }
           };
 
           this.setTypeaheadItems = function (typeaheadItems) {
@@ -101,7 +110,6 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
             angular.forEach(list, function (item) {
               if (!exists) {
                 console.log("searching item ", item, " in ", list, " by ", labelField, " for ", value);
-                //console.log("searching in ", item, " by ", fieldNames);
                 if (labelField !== undefined) {
                   if (item[labelField] == value) {
                     exists = true;
@@ -148,44 +156,55 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           // Watch inclistForm validity
           scope.$watch(
-            function() { return scope.inclistForm ? scope.inclistForm.$valid : undefined; },
-            function() {
-              //console.log("inclist: form validity changed");
-              //console.log("scope.inclistForm", scope.inclistForm);
-
-              if (scope.inclistForm && scope.inclistForm.$valid) {
-                element.addClass('ng-valid');
-                element.removeClass('ng-invalid');
+              function () {
+                return scope.inclistForm ? scope.inclistForm.$valid : undefined;
+              },
+              function () {
+                if (scope.inclistForm && scope.inclistForm.$valid) {
+                  element.addClass('ng-valid');
+                  element.removeClass('ng-invalid');
+                }
+                else {
+                  element.addClass('ng-invalid');
+                  element.removeClass('ng-valid');
+                }
               }
-              else {
-                element.addClass('ng-invalid');
-                element.removeClass('ng-valid');
-              }
-            }
           );
 
           scope.$watch(
-            function() { return scope.inclistForm ? scope.inclistForm.$dirty : undefined; },
-            function() { if (scope.inclistForm && scope.inclistForm.$dirty) { element.addClass('ng-dirty'); } }
+              function () {
+                return scope.inclistForm ? scope.inclistForm.$dirty : undefined;
+              },
+              function () {
+                if (scope.inclistForm && scope.inclistForm.$dirty) {
+                  element.addClass('ng-dirty');
+                }
+              }
           );
 
           scope.$watch(
-            function() { return scope.inclistFocused; },
-            function() {
-              if (scope.inclistFocused) {
-                element.addClass("focus");
+              function () {
+                return scope.inclistFocused;
+              },
+              function () {
+                if (scope.inclistFocused) {
+                  element.addClass("focus");
+                }
+                else {
+                  element.removeClass("focus");
+                }
+                if (scope.inclistFocused === false && scope.inclistForm && scope.inclistForm.$dirty) {
+                  element.addClass('ng-blur-after-edit');
+                }
+                if (scope.inclistFocused === false) {
+                  scope.checkItemsValidity();
+                }
               }
-              else {
-                element.removeClass("focus");
-              }
-              if (scope.inclistFocused === false && scope.inclistForm && scope.inclistForm.$dirty) {
-                element.addClass('ng-blur-after-edit');
-              }
-              if (scope.inclistFocused === false) { scope.checkItemsValidity(); }
-            }
           );
 
-          element.bind("click", function() { element.find('input')[0].focus(); });
+          element.bind("click", function () {
+            element.find('input')[0].focus();
+          });
         }
       };
     })
@@ -203,50 +222,55 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
         controller: ['$scope', function ($scope) {
 
           $scope.typeaheadOnSelect = function ($item, $model, $label) {
-            $timeout(function() { $scope.addItemFromSelection($item); }, 0);
+            $timeout(function () {
+              $scope.addItemFromSelection($item);
+            }, 0);
           };
 
         }],
 
         compile: function (tElement, tAttrs) {
-          console.log("tElement", tElement);
-
           tElement.find('form').attr('name', 'inclistForm');
 
-          tElement.find('input').attr('type', tAttrs.inputType);
-          tElement.find('input').attr('name', 'selection');
-          tElement.find('input').attr('ng-model', 'selection');
+          var inputEl = tElement.find('input');
+
+          inputEl.attr('type', tAttrs.inputType);
+          inputEl.attr('name', 'selection');
+          inputEl.attr('ng-model', 'selection');
 
           if (angular.isDefined(tAttrs.typeaheadItems)) {
 
             if (tAttrs.typeaheadLabelField) {
-              tElement.find('input').attr(
+              inputEl.attr(
                   'typeahead',
-                  'item as item.' + tAttrs.typeaheadLabelField + ' for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
+                  'item as item.' + tAttrs.typeaheadLabelField +
+                  ' for item in typeaheadItems | filter:{' +
+                  tAttrs.typeaheadLabelField +
+                  ':$viewValue}:emptyOrMatch | limitTo:20'
               );
             }
             else {
-              tElement.find('input').attr(
+              inputEl.attr(
                   'typeahead',
                   'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
               );
             }
 
             if (tAttrs.typeaheadTemplate) {
-              tElement.find('input').attr('typeahead-template-url', tAttrs.typeaheadTemplate);
+              inputEl.attr('typeahead-template-url', tAttrs.typeaheadTemplate);
             }
 
-            tElement.find('input').attr('typeahead-min-length', '0');
+            inputEl.attr('typeahead-min-length', '0');
 
-            tElement.find('input').attr('typeahead-focus', '');
+            inputEl.attr('typeahead-focus', '');
 
-            tElement.find('input').attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
+            inputEl.attr('typeahead-on-select', 'typeaheadOnSelect($item, $model, $label)');
 
           }
 
-          tElement.find('input').attr('ng-focus', 'inputOnFocus()');
-          tElement.find('input').attr('ng-blur', 'inputOnBlur()');
-          tElement.find('input').attr('placeholder', tAttrs.placeholder);
+          inputEl.attr('ng-focus', 'inputOnFocus()');
+          inputEl.attr('ng-blur', 'inputOnBlur()');
+          inputEl.attr('placeholder', tAttrs.placeholder);
 
           return function (scope, element, attrs, inclistCtrl) {
 
@@ -286,26 +310,29 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
               if (selection && scope.inclistForm.selection.$valid && inclistCtrl.addItem(selection)) {
                 scope.selection = "";
-                if (!scope.$$phase) { scope.$apply(); }
+                if (!scope.$$phase) {
+                  scope.$apply();
+                }
               }
             };
 
             scope.inputOnBlur = function () {
-              $timeout(function() { scope.addItemFromSelection(); inclistCtrl.setInclistFocused(false); }, 0);
+              $timeout(function () {
+                scope.addItemFromSelection();
+                inclistCtrl.setInclistFocused(false);
+              }, 0);
             };
 
             scope.inputOnFocus = function () {
-              $timeout(function() { scope.addItemFromSelection(); inclistCtrl.setInclistFocused(true); }, 0);
+              $timeout(function () {
+                scope.addItemFromSelection();
+                inclistCtrl.setInclistFocused(true);
+              }, 0);
             };
 
             element.on('submit', scope.addItemFromSelection);
-
-            //console.log("inclistInput link scope", scope);
-
           };
-
         }
-
       };
     }])
 

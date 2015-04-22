@@ -33,7 +33,8 @@ angular.module('angular-ui-addons.typeahead', ['ui.bootstrap'])
             if (expected == ' ') {
               return true;
             }
-            return actual !== undefined && actual.indexOf !== undefined && actual.indexOf(expected) > -1;
+            return actual !== undefined && actual.indexOf !== undefined &&
+                actual.toLowerCase().indexOf(expected.toLowerCase()) > -1;
           };
         }
       };
