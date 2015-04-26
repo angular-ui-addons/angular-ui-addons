@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.5 - 2015-04-21
+ * Version: 0.1.5 - 2015-04-26
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.typeahead","angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -57,7 +57,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
       return {
         restrict: "AE",
         scope: {
-          items: '=inclistItems'
+          items: '=inclistItems',
+          onFocusCallback: '&onFocus'
         },
 
         controller: ['$scope', function ($scope) {
@@ -139,6 +140,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           this.setInclistFocused = function (focused) {
             $scope.inclistFocused = focused;
+            $scope.onFocusCallback({result: $scope.inclistFocused});
           };
 
           var _isItemExist = function (value, list, labelField) {
