@@ -7,7 +7,8 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
       return {
         restrict: "AE",
         scope: {
-          items: '=inclistItems'
+          items: '=inclistItems',
+          onFocusCallback: '&onFocus'
         },
 
         controller: ['$scope', function ($scope) {
@@ -89,6 +90,7 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           this.setInclistFocused = function (focused) {
             $scope.inclistFocused = focused;
+            $scope.onFocusCallback({result: $scope.inclistFocused});
           };
 
           var _isItemExist = function (value, list, labelField) {
