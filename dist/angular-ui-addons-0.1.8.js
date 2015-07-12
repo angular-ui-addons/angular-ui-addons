@@ -1,3 +1,54 @@
+/*
+ * angular-ui-addons
+ * http://angular-ui-addons.github.io
+
+ * Version: 0.1.8 - 2015-07-12
+ * License: MIT
+ */
+angular.module("angular-ui-addons", ["angular-ui-addons.typeahead","angular-ui-addons.inclist","angular-ui-addons.validation"]);
+angular.module('angular-ui-addons.typeahead', ['ui.bootstrap'])
+
+    .directive('typeaheadFocus', function () {
+      return {
+        require: 'ngModel',
+
+        link: function (scope, element, attr, ngModel) {
+
+          console.log("typeaheadFocus processing");
+
+          //trigger the popup on 'click' because 'focus'
+          //is also triggered after the item selection
+          element.bind('click', function () {
+
+            console.log("typeaheadFocus triggering");
+
+            var viewValue = ngModel.$viewValue;
+
+            //restore to null value so that the typeahead can detect a change
+            if (ngModel.$viewValue == ' ') {
+              ngModel.$setViewValue(null);
+            }
+
+            //force trigger the popup
+            ngModel.$setViewValue(' ');
+
+            //set the actual value in case there was already a value in the input
+            ngModel.$setViewValue(viewValue || ' ');
+          });
+
+          //compare function that treats the empty space as a match
+          scope.emptyOrMatch = function (actual, expected) {
+            if (expected == ' ') {
+              return true;
+            }
+            return actual !== undefined && actual.indexOf !== undefined &&
+                actual.toLowerCase().indexOf(expected.toLowerCase()) > -1;
+          };
+        }
+      };
+    });
+
+
 EMAIL_REGEXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-z0-9-]+.[a-z0-9-]/;
 URL_REGEXP = /(http|ftp|https):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/;
 
@@ -360,3 +411,36 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
       };
     });
 
+
+angular.module('angular-ui-addons.validation', [])
+
+    .directive('strongPassword', function () {
+
+      var isValid = function(pass) {
+        return pass && pass.length > 6;
+      };
+
+
+      return {
+        require: 'ngModel',
+        link: function (scope, element, attrs, ngModelCtrl) {
+//          console.log(scope);
+
+          ngModelCtrl.$parsers.unshift(function (viewValue) {
+            var valid = isValid(viewValue);
+
+            ngModelCtrl.$setValidity('strongPass', valid);
+            return viewValue;
+          });
+
+          ngModelCtrl.$formatters.unshift(function (modelValue) {
+
+            var valid = isValid(modelValue);
+
+            ngModelCtrl.$setValidity('strongPass', valid);
+            return modelValue;
+          });
+
+        }
+      };
+    });
