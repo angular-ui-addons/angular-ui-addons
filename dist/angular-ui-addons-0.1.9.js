@@ -2,7 +2,7 @@
  * angular-ui-addons
  * http://angular-ui-addons.github.io
 
- * Version: 0.1.7 - 2015-04-22
+ * Version: 0.1.9 - 2015-07-17
  * License: MIT
  */
 angular.module("angular-ui-addons", ["angular-ui-addons.typeahead","angular-ui-addons.inclist","angular-ui-addons.validation"]);
@@ -291,19 +291,22 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           if (angular.isDefined(tAttrs.typeaheadItems)) {
 
-            if (tAttrs.typeaheadLabelField) {
+            var limitTo = tAttrs.typeaheadLimitTo || 20;
+            var limitToStr = 'limitTo:' + limitTo;
+
+            if (tAttrs.typeaheadFilterField) {
               inputEl.attr(
                   'typeahead',
                   'item as item.' + tAttrs.typeaheadLabelField +
                   ' for item in typeaheadItems | filter:{' +
-                  tAttrs.typeaheadLabelField +
-                  ':$viewValue}:emptyOrMatch | limitTo:20'
+                  tAttrs.typeaheadFilterField +
+                  ':$viewValue}:emptyOrMatch | ' + limitToStr
               );
             }
             else {
               inputEl.attr(
                   'typeahead',
-                  'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
+                  'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | ' + limitToStr
               );
             }
 

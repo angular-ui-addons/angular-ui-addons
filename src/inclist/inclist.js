@@ -240,19 +240,22 @@ angular.module('angular-ui-addons.inclist', ['ui.bootstrap', 'angular-ui-addons.
 
           if (angular.isDefined(tAttrs.typeaheadItems)) {
 
+            var limitTo = tAttrs.typeaheadLimitTo || 20;
+            var limitToStr = 'limitTo:' + limitTo;
+
             if (tAttrs.typeaheadFilterField) {
               inputEl.attr(
                   'typeahead',
                   'item as item.' + tAttrs.typeaheadLabelField +
                   ' for item in typeaheadItems | filter:{' +
                   tAttrs.typeaheadFilterField +
-                  ':$viewValue}:emptyOrMatch | limitTo:20'
+                  ':$viewValue}:emptyOrMatch | ' + limitToStr
               );
             }
             else {
               inputEl.attr(
                   'typeahead',
-                  'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | limitTo:20'
+                  'item as item for item in typeaheadItems | filter:$viewValue:emptyOrMatch | ' + limitToStr
               );
             }
 
